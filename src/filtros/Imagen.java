@@ -230,10 +230,10 @@ public class Imagen {
 						"Pixel (" + x + "," + y + ")" +
 								" RGB = (" + r + ", " + g + ", " + b + ")" +
 								" --> CMYK = (" +
-								"C"+ Math.round(c * 100) + "%, " +
-								"M"+ Math.round(m * 100) + "%, " +
-								"Y"+ Math.round(yellow * 100) + "%, " +
-								"K"+ Math.round(k * 100) + "%)");
+								Math.round(c * 100) + "%, " +
+								Math.round(m * 100) + "%, " +
+								Math.round(yellow * 100)+ "%, " +
+								Math.round(k * 100) + "%)");
 			}
 		}
 	}
