@@ -226,9 +226,14 @@ public class Imagen {
 					yellow = (1 - bf - k) / (1 - k);
 				}
 
-				System.out.printf(
-						"Pixel (%d,%d): C=%.2f M=%.2f Y=%.2f K=%.2f%n",
-						x, y, c, m, yellow, k);
+				System.out.println(
+						"Pixel (" + x + "," + y + ")" +
+								" RGB = (" + r + ", " + g + ", " + b + ")" +
+								" --> CMYK = (" +
+								"C"+ Math.round(c * 100) + "%, " +
+								"M"+ Math.round(m * 100) + "%, " +
+								"Y"+ Math.round(yellow * 100) + "%, " +
+								"K"+ Math.round(k * 100) + "%)");
 			}
 		}
 	}
