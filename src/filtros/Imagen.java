@@ -2,6 +2,7 @@ package filtros;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.awt.Color;
 
 import javax.imageio.ImageIO;
 
@@ -75,12 +76,85 @@ public class Imagen {
 		return resultado;
 	}
 
+	public static BufferedImage modificarSaturacion(BufferedImage original, BufferedImage resultado, float factorSaturacion, int mascara) {
+
+        for (int x = 0; x < original.getWidth(); x++) {
+            for (int y = 0; y < original.getHeight(); y++) {
+                int pixel = original.getRGB(x, y);
+
+                int a = (pixel >> 24) & mascara;
+                int r = (pixel >> 16) & mascara;
+                int g = (pixel >> 8) & mascara;
+                int b = (pixel >> 0) & mascara;
+
+				int gris = (int)(0.299*r+0.587*g+0.114*b);
+				
+				int r1 = clamp((int)(gris + factorSaturacion*(r-gris)));
+				int g1 = clamp((int)(gris + factorSaturacion*(g-gris)));
+				int b1 = clamp((int)(gris + factorSaturacion*(b-gris)));
+                
+                int pixelNuevo = (a << 24) | (r1 << 16) | (g1 << 8) | b1;
+                resultado.setRGB(x, y, pixelNuevo);
+            }
+        }
+        return resultado;
+    }
+
+	public static BufferedImage rotarHue(BufferedImage original, BufferedImage resultado, float grados, int mascara) {
+
+        for (int x = 0; x < original.getWidth(); x++) {
+            for (int y = 0; y <  original.getHeight(); y++) {
+                int pixel = original.getRGB(x, y);
+
+                int a = (pixel >> 24) & mascara;
+                int r = (pixel >> 16) & mascara;
+                int g = (pixel >> 8) & mascara;
+                int b = (pixel >> 0) & mascara;
+
+                float[] hsb = Color.RGBtoHSB(r, g, b, null);
+                
+                hsb[0] = (hsb[0] + (grados / 360f)) % 1.0f;
+                
+                int nuevoRgb = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
+                
+                int r1 = (nuevoRgb >> 16) & mascara;
+                int g1 = (nuevoRgb >> 8) & mascara;
+                int b1 = (nuevoRgb >> 0) & mascara;
+                
+                int pixelNuevo = (a << 24) | (r1 << 16) | (g1 << 8) | b1;
+                resultado.setRGB(x, y, pixelNuevo);
+            }
+        }
+        return resultado;
+    }
+
+	public static BufferedImage modificarBrillo(BufferedImage original, BufferedImage resultado, float factorBrillo, int mascara) {
+
+        for (int x = 0; x < original.getWidth(); x++) {
+            for (int y = 0; y < original.getHeight(); y++) {
+                int pixel = original.getRGB(x, y);
+
+                int a = (pixel >> 24) & mascara;
+                int r = (pixel >> 16) & mascara;
+                int g = (pixel >> 8) & mascara;
+                int b = (pixel >> 0) & mascara;
+				
+				int r1 = clamp((int)(r * 1.0  + factorBrillo));
+				int g1 = clamp((int)(g * 1.0  + factorBrillo));
+				int b1 = clamp((int)(b * 1.0  + factorBrillo));
+                
+                int pixelNuevo = (a << 24) | (r1 << 16) | (g1 << 8) | b1;
+                resultado.setRGB(x, y, pixelNuevo);
+            }
+        }
+        return resultado;
+    }
+
+
 	public static int clamp(int n) {
 		return Math.max(0, Math.min(255, n));
 	}
-
 	public static void main(String[] args) {
-		int ancho, alto;
 		int mascara = 0xFF;
 
 		try {
@@ -95,7 +169,26 @@ public class Imagen {
 			ImageIO.write(umbralizacion(buffer, buffer2, mascara,100), "png", new File("src/imagenes/ejericio3_100.png"));
 			ImageIO.write(umbralizacion(buffer, buffer2, mascara,50), "png", new File("src/imagenes/ejericio3_50.png"));
 			ImageIO.write(umbralizacion(buffer, buffer2, mascara,200), "png", new File("src/imagenes/ejericio3_200.png"));
-			
+
+			//Ejercicio 4
+			float[] listaSaturaciones = {1.2f, 0.6f, 1.0f, 0.0f};
+            for (int i = 0; i < listaSaturaciones.length; i++) {
+                BufferedImage res = modificarSaturacion(buffer, buffer2, listaSaturaciones[i], mascara);
+                ImageIO.write(res, "png", new File("src/imagenes/ejercicio4_sat_" + listaSaturaciones[i] + ".png"));
+            }
+			//Ejercicio 5
+			float[] listaGrados = {60f, 150f, 360f, 0.0f};
+            for (int i = 0; i < listaGrados.length; i++) {
+                BufferedImage res = rotarHue(buffer, buffer2, listaGrados[i], mascara);
+                ImageIO.write(res, "png", new File("src/imagenes/ejercicio5_RotacionHue_" + (int)listaGrados[i] + ".png"));
+            }
+			//Ejercicio 6
+			int[] listaBrillos = {40, -40};
+            for (int i = 0; i < listaBrillos.length; i++) {
+                BufferedImage res = modificarBrillo(buffer, buffer2, listaBrillos[i], mascara);
+                ImageIO.write(res, "png", new File("src/imagenes/ejercicio6_brillo_" + listaBrillos[i] + ".png"));
+            }
+
 			System.out.println("correcto");
 
 		} catch (Exception e) {
